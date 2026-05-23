@@ -51,6 +51,23 @@ export const pickleMenuItems = [
       { label: "500g", price: 400 },
       { label: "1kg", price: 800 }
     ]
+  },
+  {
+    id: "Ker ka Achar",
+    category: "Pickles",
+    name: "Ker ka Achar",
+    hindiName: "Ker ka Achar",
+    badge: "Kitchen Favorite",
+    tags: ["Rajasthani", "Homemade"],
+    description:
+      "Rajasthani-style Ker achar with a rich masala profile and old-school homely tang.",
+    image: "/menu-images/Ker-ka-achar-785683203.jpg",
+    accent: "earth",
+    variants: [
+      { label: "250g", price: 325 },
+      { label: "500g", price: 750 },
+      { label: "1kg", price: 1500 }
+    ]
   }
 ];
 

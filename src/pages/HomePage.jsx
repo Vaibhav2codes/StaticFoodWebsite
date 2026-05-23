@@ -62,8 +62,8 @@ function HomePage() {
       <KitchenSpotlightCarousel
         items={pickleSpotlightItems}
         onAddToCart={addItem}
-        eyebrow="Food Spotlight"
-        title="Kitchen favorites to swipe through"
+        eyebrow="Pickle Spotlight"
+        title="The kind of pickle your nani would approve"
       />
 
       <FoodSpotlightStrip

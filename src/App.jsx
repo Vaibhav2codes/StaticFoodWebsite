@@ -1,7 +1,7 @@
 import { NavLink, Route, Routes } from "react-router-dom";
 import BrandMark from "./components/BrandMark";
 import CartBadge from "./components/CartBadge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HomePage from "./pages/HomePage";
 import MenuPage from "./pages/MenuPage";
 import CartPage from "./pages/CartPage";
@@ -16,6 +16,10 @@ const navItems = [
 
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  useEffect(() => {
+    // ensure drawer is closed on fresh mount (avoids HMR-preserved open state)
+    setMobileOpen(false);
+  }, []);
   return (
     <div className="app-shell">
       <div className="bg-orb orb-one" />
