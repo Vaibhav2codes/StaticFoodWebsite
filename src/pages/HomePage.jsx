@@ -62,10 +62,8 @@ function HomePage() {
       <KitchenSpotlightCarousel
         items={pickleSpotlightItems}
         onAddToCart={addItem}
-        onOrderWhatsApp={handleSpotlightOrder}
-        eyebrow="Pickle Spotlight"
-        title="Today's Pickle Spotlight"
-        description="Premium homemade achar jars with rich masala color, glassy cards, and a warm kitchen-shelf glow."
+        eyebrow="Food Spotlight"
+        title="Kitchen favorites to swipe through"
       />
 
       <FoodSpotlightStrip

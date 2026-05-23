@@ -249,6 +249,40 @@ function DeliveryAddressModal({ isOpen, initialValue, onClose, onConfirm }) {
     return null;
   }
 
+  function useCurrentLocation() {
+  if (!navigator.geolocation) {
+    setErrorMessage("Geolocation is not supported on this device.");
+    return;
+  }
+
+  setErrorMessage("");
+  setIsResolvingAddress(true);
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const coords = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      mapRef.current?.setCenter(coords);
+      mapRef.current?.setZoom(17);
+
+      markerRef.current?.setPosition(coords);
+
+      reverseGeocodePosition(coords);
+    },
+    () => {
+      setIsResolvingAddress(false);
+      setErrorMessage("Unable to fetch current location.");
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000
+    }
+  );
+}
+
   const apiKeyMissing = !getGoogleMapsApiKey();
 
   return (
@@ -259,9 +293,10 @@ function DeliveryAddressModal({ isOpen, initialValue, onClose, onConfirm }) {
             <p className="eyebrow">Delivery Address</p>
             <h3>Select location on map</h3>
           </div>
-          <button type="button" className="text-button" onClick={onClose}>
-            Close
-          </button>
+          <button type="button" className="text-button" onClick={onClose}
+  aria-label="Close">
+  ✕
+</button>
         </div>
 
         {apiKeyMissing ? (
@@ -341,6 +376,14 @@ function DeliveryAddressModal({ isOpen, initialValue, onClose, onConfirm }) {
                 <div className="address-map-state">Loading map...</div>
               ) : null}
               <div ref={mapContainerRef} className="address-map" />
+              <button
+  type="button"
+  className="map-location-fab"
+  onClick={useCurrentLocation}
+  aria-label="Use current location"
+>
+  ⦿
+</button>
               {isResolvingAddress ? (
                 <div className="address-map-overlay">Updating selected address...</div>
               ) : null}

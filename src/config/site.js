@@ -1,8 +1,8 @@
 export const siteConfig = {
   outletName: "Ozone Kitchen",
-  tagline: "Ghar jaisa swaad.",
-  heroEyebrow: "Homemade Kitchen Delivery",
-  whatsappNumber: "919999999999",
+  tagline: "",
+  heroEyebrow: "Homemade Cloud Kitchen",
+  whatsappNumber: "918239307242",
   heroTitle: "The kind of pickle your nani would approve",
   heroCopy:
     "Ozone Kitchen brings homemade-style achar in cheerful jars, crafted for daily meals, family spreads, and gifting-friendly snack pairings.",

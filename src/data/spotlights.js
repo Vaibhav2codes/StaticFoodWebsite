@@ -53,7 +53,6 @@ export const foodSpotlightItems = foodSpotlightIds
     description: item.description,
     image: item.localImage,
     price: item.currentPrice,
-    variantLabel: item.variantName,
     tags: foodTagsByCategory[item.category] || ["Fresh Batch", "Kitchen Made", "Homestyle"]
   }));
 

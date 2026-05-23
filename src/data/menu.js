@@ -7,7 +7,7 @@ export const pickleMenuItems = [
     name: "Aam Achar (Keri ka Achar)",
     hindiName: "Aam ka Achar",
     badge: "Bestseller",
-    tags: ["No Preservatives", "Small Batch", "Homemade"],
+    tags: ["No Preservatives", "Homemade"],
     description:
       "Homemade aam pickle prepared with bold masalas for a rich, traditional achar finish.",
     image: "/menu-images/aam-achar-keri-ka-achar-785807831.jpg",
@@ -24,7 +24,7 @@ export const pickleMenuItems = [
     name: "Green Chilli Pickle",
     hindiName: "Hari Mirch ka Achar",
     badge: "Fresh Batch",
-    tags: ["No Preservatives", "Spicy", "Homemade"],
+    tags: ["No Preservatives", "Homemade"],
     description:
       "Tasty and delicious homemade green chilli pickle with a bright, fiery household flavor.",
     image: "/menu-images/green-chilli-pickle-785610401.jpg",
@@ -38,10 +38,10 @@ export const pickleMenuItems = [
   {
     id: "lasode-gunde-ka-achar",
     category: "Pickles",
-    name: "Lasode (Gunde) ka Achar",
+    name: "Gunde ka Achar",
     hindiName: "Gunde ka Achar",
     badge: "Kitchen Favorite",
-    tags: ["Rajasthani", "Handcrafted", "Homemade"],
+    tags: ["Rajasthani", "Homemade"],
     description:
       "Rajasthani-style lasode achar with a rich masala profile and old-school homely tang.",
     image: "/menu-images/lasode-gunde-ka-achar-785683203.jpg",
@@ -84,7 +84,6 @@ function createMenuItem(item) {
     accent: accentByCategory[item.category] || "sunrise",
     variants: [
       {
-        label: item.variantName || "Standard",
         price: item.currentPrice
       }
     ]

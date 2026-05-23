@@ -136,15 +136,14 @@ function CartPage() {
           {cartItems.map((item) => (
             <article
               key={`${item.productId}-${item.variantLabel}`}
-              className="cart-item"
+              className="cart-item-compact"
             >
-              <div>
-                <h3>{item.productName}</h3>
-                <p className="cart-item-meta">{item.variantLabel}</p>
-                <p className="cart-item-price">{formatPrice(item.unitPrice)} each</p>
+              <div className="cart-item-compact-left">
+                <h4 className="cart-item-name">{item.productName}</h4>
+                <div className="cart-item-price-inline">{formatPrice(item.quantity * item.unitPrice)}</div>
               </div>
 
-              <div className="cart-actions">
+              <div className="cart-item-compact-right">
                 <div className="quantity-box">
                   <button
                     type="button"
@@ -174,18 +173,6 @@ function CartPage() {
                     +
                   </button>
                 </div>
-
-                <p className="cart-line-total">
-                  {formatPrice(item.quantity * item.unitPrice)}
-                </p>
-
-                <button
-                  type="button"
-                  className="text-button danger-button"
-                  onClick={() => removeItem(item.productId, item.variantLabel)}
-                >
-                  Remove
-                </button>
               </div>
             </article>
           ))}
@@ -294,28 +281,34 @@ function CartPage() {
           </div>
           <div className="summary-row summary-row-muted">
             <span>Packaging charges</span>
-            <strong>As applicable</strong>
+            <strong>Applicable</strong>
           </div>
           <div className="summary-row summary-row-muted">
             <span>Delivery charges</span>
-            <strong>As applicable</strong>
+            <strong>Applicable</strong>
           </div>
-          <p className="summary-note">{siteConfig.deliveryNote}</p>
-          <p className="summary-note">{siteConfig.paymentNote}</p>
-          <p className="summary-note">
-            The WhatsApp order message includes your name, item size, quantity, and total.
-          </p>
+          <div className="summary-notes">
+            <ul>
+              <li>Delivery charges depend on distance</li>
+              <li>Packaging charges may apply</li>
+              <li>Orders confirmed on WhatsApp</li>
+              <li>Cash payment on delivery</li>
+            </ul>
+          </div>
         </div>
+      </aside>
 
+      {/* Sticky bottom checkout */}
+      <div className="cart-sticky-checkout">
         <button
           type="button"
-          className="button button-primary button-wide"
+          className="button button-primary cart-checkout-wide"
           disabled={!canCheckout}
           onClick={handleCheckout}
         >
           Checkout on WhatsApp
         </button>
-      </aside>
+      </div>
 
       <DeliveryAddressModal
         isOpen={isAddressModalOpen}

@@ -7,32 +7,23 @@ import QuantityStepper from "./QuantityStepper";
 const AUTOPLAY_MS = 5000;
 const SWIPE_THRESHOLD = 48;
 
-function normalizeOffset(index, activeIndex, total) {
-  const rawOffset = index - activeIndex;
-  const wrapOffset = ((rawOffset + total + Math.floor(total / 2)) % total) - Math.floor(total / 2);
-
-  if (total % 2 === 0 && wrapOffset === -Math.floor(total / 2)) {
-    return Math.floor(total / 2);
-  }
-
-  return wrapOffset;
-}
-
 function KitchenSpotlightCarousel({
   items,
   onAddToCart,
-  onOrderWhatsApp,
-  title = "Today's Kitchen Spotlight",
-  eyebrow = "Signature Carousel",
-  description = "Handcrafted jars with a warm homemade soul, styled like a premium D2C kitchen shelf."
+  eyebrow = "Pickle Spotlight",
+  title = siteConfig.heroTitle
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState({});
   const [isHovered, setIsHovered] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
+
   const { getItemQuantity, updateQuantity } = useCart();
+
+  const trackRef = useRef(null);
   const pointerStartX = useRef(null);
   const pointerDeltaX = useRef(0);
+
   const total = items.length;
 
   useEffect(() => {
@@ -59,18 +50,6 @@ function KitchenSpotlightCarousel({
     goToSlide(activeIndex - 1);
   }
 
-  function handleKeyDown(event) {
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      goToNext();
-    }
-
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      goToPrevious();
-    }
-  }
-
   function handlePointerDown(event) {
     pointerStartX.current = event.clientX;
     pointerDeltaX.current = 0;
@@ -82,7 +61,8 @@ function KitchenSpotlightCarousel({
       return;
     }
 
-    pointerDeltaX.current = event.clientX - pointerStartX.current;
+    pointerDeltaX.current =
+      event.clientX - pointerStartX.current;
   }
 
   function clearPointer() {
@@ -105,9 +85,15 @@ function KitchenSpotlightCarousel({
     clearPointer();
   }
 
-  function getSelectedVariant(item) {
-    const selectedIndex = selectedVariants[item.id] ?? 0;
-    return item.variants[selectedIndex] || item.variants[0];
+  function scrollTrack(direction) {
+    if (!trackRef.current) {
+      return;
+    }
+
+    trackRef.current.scrollBy({
+      left: direction * 320,
+      behavior: "smooth"
+    });
   }
 
   if (total === 0) {
@@ -116,217 +102,203 @@ function KitchenSpotlightCarousel({
 
   return (
     <section
-      className="spotlight-shell"
+      className="food-spotlight-shell"
       aria-label={title}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="spotlight-spice spice-one" aria-hidden="true" />
-      <div className="spotlight-spice spice-two" aria-hidden="true" />
-      <div className="spotlight-header">
+      <div className="food-spotlight-header">
         <div>
           <p className="eyebrow">{eyebrow}</p>
-          <h2>{title}</h2>
+
+          <h2 id="food-spotlight-title">
+            {title}
+          </h2>
         </div>
-        <p className="spotlight-header-copy">{description}</p>
+
+        <div className="food-spotlight-controls">
+          <button
+            type="button"
+            className="food-spotlight-arrow"
+            aria-label="Scroll spotlight left"
+            onClick={() => scrollTrack(-1)}
+          >
+            &lt;
+          </button>
+
+          <button
+            type="button"
+            className="food-spotlight-arrow"
+            aria-label="Scroll spotlight right"
+            onClick={() => scrollTrack(1)}
+          >
+            &gt;
+          </button>
+        </div>
       </div>
 
       <div
-        className="spotlight-viewport"
+        className="food-spotlight-track"
+        ref={trackRef}
         tabIndex={0}
-        onKeyDown={handleKeyDown}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={clearPointer}
-        onPointerLeave={clearPointer}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <button
-          type="button"
-          className="spotlight-arrow spotlight-arrow-left"
-          aria-label="Previous spotlight item"
-          onClick={goToPrevious}
-        >
-          <span aria-hidden="true">&lt;</span>
-        </button>
+        {items.map((item) => {
 
-        <div className="spotlight-stage">
-          {items.map((item, index) => {
-            const offset = normalizeOffset(index, activeIndex, total);
-            const isActive = offset === 0;
-            const distance = Math.abs(offset);
-            const isVisible = distance <= 1;
-            const selectedVariant = getSelectedVariant(item);
-            const quantity = getItemQuantity(item.id, selectedVariant.label);
-            const positionClass = isActive
-              ? "spotlight-card-active"
-              : distance === 1
-                ? "spotlight-card-preview"
-                : "spotlight-card-hidden";
-            const initials = item.name
-              .split(" ")
-              .map((word) => word[0])
-              .slice(0, 2)
-              .join("")
-              .toUpperCase();
+          const selectedIndex =
+            selectedVariants[item.id] ?? 0;
 
-            return (
-              <article
-                key={item.id}
-                className={`spotlight-card ${positionClass}`}
-                style={{
-                  "--offset": offset,
-                  "--distance": distance,
-                  "--direction": Math.sign(offset) || 1
-                }}
-                aria-hidden={!isActive}
-              >
-                <div className="spotlight-card-inner">
-                  <div className={`spotlight-visual accent-${item.accent}`}>
-                    <span className="spotlight-badge">{item.badge || "Fresh Batch"}</span>
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="spotlight-image"
-                      />
-                    ) : (
-                      <div className="spotlight-image-fallback" aria-hidden="true">
-                        <span className="spotlight-fallback-label">Ozone Kitchen</span>
-                        <span className="spotlight-fallback-initials">{initials}</span>
-                        <span className="spotlight-fallback-hindi">{item.hindiName}</span>
-                      </div>
-                    )}
-                  </div>
+          const selectedVariant =
+            item.variants[selectedIndex] ||
+            item.variants[0];
 
-                  <div className="spotlight-copy">
-                    <p className="spotlight-category">{item.category}</p>
-                    <h3>{item.name}</h3>
-                    <p className="spotlight-subtitle">{item.hindiName}</p>
-                    <p className="spotlight-description">{item.description}</p>
+          const quantity = getItemQuantity(
+            item.id,
+            selectedVariant.label
+          );
 
-                    <div className="spotlight-tags" aria-label="Product qualities">
-                      {item.tags?.map((tag) => (
-                        <span key={tag} className="spotlight-tag">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+          function handleAdd() {
+            onAddToCart({
+              productId: item.id,
+              productName: item.name,
+              variantLabel: selectedVariant.label,
+              unitPrice: selectedVariant.price,
+              quantity: 1
+            });
+          }
 
-                    <div className="spotlight-variant-row">
-                      <label className="field-label" htmlFor={`${item.id}-spotlight-variant`}>
-                        Pickle size
-                      </label>
-                      <select
-                        id={`${item.id}-spotlight-variant`}
-                        className="variant-select spotlight-variant-select"
-                        value={selectedVariants[item.id] ?? 0}
-                        onChange={(event) =>
-                          setSelectedVariants((current) => ({
-                            ...current,
-                            [item.id]: Number(event.target.value)
-                          }))
-                        }
-                      >
-                        {item.variants.map((variant, variantIndex) => (
-                          <option key={variant.label} value={variantIndex}>
-                            {variant.label} - {formatPrice(variant.price)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="spotlight-footer">
-                      <div>
-                        <p className="price-caption">From</p>
-                        <p className="spotlight-price">
-                          {formatPrice(selectedVariant.price)}
-                        </p>
-                      </div>
-
-                      <div className="spotlight-actions">
-                        {quantity === 0 ? (
-                          <button
-                            type="button"
-                            className="button button-primary"
-                            onClick={() =>
-                              onAddToCart({
-                                productId: item.id,
-                                productName: item.name,
-                                variantLabel: selectedVariant.label,
-                                unitPrice: selectedVariant.price,
-                                quantity: 1
-                              })
-                            }
-                          >
-                            Add to Cart
-                          </button>
-                        ) : (
-                          <QuantityStepper
-                            className="spotlight-stepper"
-                            quantity={quantity}
-                            itemName={`${item.name} ${selectedVariant.label}`}
-                            onDecrement={() =>
-                              updateQuantity(item.id, selectedVariant.label, quantity - 1)
-                            }
-                            onIncrement={() =>
-                              onAddToCart({
-                                productId: item.id,
-                                productName: item.name,
-                                variantLabel: selectedVariant.label,
-                                unitPrice: selectedVariant.price,
-                                quantity: 1
-                              })
-                            }
-                          />
-                        )}
-                        <button
-                          type="button"
-                          className="button button-secondary"
-                          onClick={() =>
-                            onOrderWhatsApp({
-                              productId: item.id,
-                              productName: item.name,
-                              variantLabel: selectedVariant.label,
-                              unitPrice: selectedVariant.price,
-                              quantity: 1
-                            })
-                          }
-                        >
-                          Order on WhatsApp
-                        </button>
-                      </div>
-                    </div>
-                    <p className="spotlight-note">{siteConfig.picklePackagingNote}</p>
-                  </div>
-                </div>
-              </article>
+          function handleRemove() {
+            updateQuantity(
+              item.id,
+              selectedVariant.label,
+              quantity - 1
             );
-          })}
-        </div>
+          }
 
-        <button
-          type="button"
-          className="spotlight-arrow spotlight-arrow-right"
-          aria-label="Next spotlight item"
-          onClick={goToNext}
-        >
-          <span aria-hidden="true">&gt;</span>
-        </button>
-      </div>
+          return (
+            <article
+              key={item.id}
+              className="food-spotlight-card"
+            >
+              <div
+                className={`food-spotlight-image-wrap accent-${item.accent}`}
+              >
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="food-spotlight-image"
+                  />
+                ) : (
+                  <div
+                    className="spotlight-image-fallback"
+                    aria-hidden="true"
+                  >
+                    <span className="spotlight-fallback-label">
+                      Ozone Kitchen
+                    </span>
 
-      <div className="spotlight-dots" role="tablist" aria-label="Kitchen spotlight slides">
-        {items.map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={index === activeIndex}
-            aria-label={`Show ${item.name}`}
-            className={index === activeIndex ? "spotlight-dot spotlight-dot-active" : "spotlight-dot"}
-            onClick={() => goToSlide(index)}
-          />
-        ))}
+                    <span className="spotlight-fallback-initials">
+                      {item.name
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="food-spotlight-copy">
+
+                <p className="product-category">
+                  {item.category}
+                </p>
+
+                <h3>{item.name}</h3>
+
+                <p className="food-spotlight-subtitle">
+                  {item.hindiName}
+                </p>
+
+                <p className="food-spotlight-description">
+                  {item.description}
+                </p>
+
+                <div className="food-spotlight-tags">
+                  {item.tags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className="food-spotlight-tag"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="spotlight-variant-row">
+
+                  <label
+                    className="field-label"
+                    htmlFor={`${item.id}-spotlight-variant`}
+                  >
+                    Choose jar size
+                  </label>
+
+                  <div className="spotlight-variant-actions">
+
+                    <select
+                      id={`${item.id}-spotlight-variant`}
+                      className="variant-select spotlight-variant-select"
+                      value={selectedIndex}
+                      onChange={(event) =>
+                        setSelectedVariants((current) => ({
+                          ...current,
+                          [item.id]: Number(event.target.value)
+                        }))
+                      }
+                    >
+                      {item.variants.map((variant, index) => (
+                        <option
+                          key={variant.label}
+                          value={index}
+                        >
+                          {variant.label} - {formatPrice(variant.price)}
+                        </option>
+                      ))}
+                    </select>
+
+                    {quantity === 0 ? (
+                      <button
+                        type="button"
+                        className="button button-primary spotlight-inline-add"
+                        onClick={handleAdd}
+                      >
+                        Add
+                      </button>
+                    ) : (
+                      <QuantityStepper
+                        className="product-stepper"
+                        quantity={quantity}
+                        itemName={`${item.name} ${selectedVariant.label}`}
+                        onDecrement={handleRemove}
+                        onIncrement={handleAdd}
+                      />
+                    )}
+
+                  </div>
+
+                  <p className="spotlight-note">
+                    Glass jar packaging charges extra.
+                  </p>
+
+                </div>
+
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
